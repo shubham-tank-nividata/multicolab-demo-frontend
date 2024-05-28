@@ -31,7 +31,7 @@ function App() {
         theme: 'snow',
       });
       const ydoc = new Y.Doc();
-      console.log(import.meta.env.VITE_WEBSOCKET_SERVER_URL)
+
       new WebsocketProvider(
         import.meta.env.VITE_WEBSOCKET_SERVER_URL,
         'my-editor ',
