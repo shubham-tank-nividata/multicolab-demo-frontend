@@ -1,46 +1,53 @@
+import Quill from 'quill';
+import QuillCursors from 'quill-cursors';
+import { useEffect, useRef } from 'react';
 import './App.css';
-import * as Y from 'yjs';
+import * as Y from 'yjs'
+import { QuillBinding } from 'y-quill'
 import { WebsocketProvider } from 'y-websocket';
-import { ChangeEvent, useEffect, useState } from 'react';
 
-const ydoc = new Y.Doc();
-const wsProvider = new WebsocketProvider(
-  'ws://localhost:1234',
-  'my-roomname',
-  ydoc
-);
-const ymap = ydoc.getMap();
+Quill.register('modules/cursors', QuillCursors);
 
 function App() {
-  const [text, setText] = useState('');
-
-  const ymapObserver = () => {
-    setText(ymap.get('text') as string);
-  };
+  const quillRef = useRef<Quill | null>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    wsProvider.on('status', (event: any) => {
-      console.log(event.status); // logs "connected" or "disconnected"
-    });
+    if (!quillRef.current) {
+      
+      const quill = new Quill(editorRef.current!, {
+        modules: {
+          cursors: true,
+          toolbar: [
+            // adding some basic Quill content features
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            ['image', 'code-block'],
+          ],
+          history: {
+            userOnly: true,
+          },
+        },
+        placeholder: 'Start collaborating...',
+        theme: 'snow', 
+      });
+      const ydoc = new Y.Doc()
+  
+      const provider = new WebsocketProvider(
+        'ws://localhost:1234', 'my-editor ', ydoc
+      )
+  
+      const ytext = ydoc.getText('quill')
+  
+      const binding = new QuillBinding(ytext, quill)
 
-    ymap.observe(ymapObserver);
-
-    return () => {
-      ymap.unobserve(ymapObserver);
-    };
+      quillRef.current = quill
+    }
   }, []);
-
-  const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    ymap.set('text', e.target.value);
-  };
 
   return (
     <div className='container mt-4'>
-      <textarea
-        className='w-full h-60 bg-[#171026] text-cyan-300 p-4 text-base border-2 border-cyan-600 rounded-md'
-        value={text}
-        onChange={handleTextChange}
-      ></textarea>
+      <div id='editor' className='h-60 text-base text-cyan-300' ref={editorRef} />
     </div>
   );
 }

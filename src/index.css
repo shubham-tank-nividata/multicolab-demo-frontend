@@ -6,3 +6,7 @@ body {
   background-color: #171026;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+.ql-toolbar {
+  background-color: rgb(23, 126, 152);
+}
