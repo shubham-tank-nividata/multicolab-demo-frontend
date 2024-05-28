@@ -3,10 +3,25 @@
 @tailwind utilities;
 
 body {
+  color: rgb(103 232 249);
   background-color: #171026;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .ql-toolbar {
   background-color: rgb(23, 126, 152);
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  outline: 5px solid #2f234b !important;
+  border: none !important;
+}
+
+.ql-editor.ql-blank::before {
+  left: auto;
+  color: rgb(49, 103, 110);
+  right: unset;
+}
+
+#editor {
+  outline: 5px solid #2f234b !important;
 }
