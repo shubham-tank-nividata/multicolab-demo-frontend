@@ -49,3 +49,9 @@ Follow below steps to deploy project on production server:
     npm run preview
     ```
 
+### On AWS EC2 with pm2
+
+```
+pm2 start "HOST=0.0.0.0 PORT=1234 npx y-websocket"
+pm2 start "npm run preview -- --host"
+```
