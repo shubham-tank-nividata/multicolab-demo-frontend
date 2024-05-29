@@ -5,9 +5,10 @@ import './App.css';
 import * as Y from 'yjs';
 import { Awareness, QuillBinding } from 'y-quill';
 import { WebsocketProvider } from 'y-websocket';
+import { generateRandomString } from './helpers';
 
 type User = {
-  id: number;
+  id: string;
   name: string;
   color: string;
 };
@@ -18,6 +19,7 @@ function App() {
   const providerRef = useRef<WebsocketProvider | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const currentUserColor = useMemo(
     () => usercolors[Math.floor(Math.random() * usercolors.length)],
     []
@@ -25,19 +27,23 @@ function App() {
 
   const handleUsernameChange = (username: string) => {
     if (providerRef.current) {
-      providerRef.current.awareness.setLocalStateField('user', {
+      const updatedUser = {
+        id: generateRandomString(),
         name: username || 'Guest',
         color: username ? currentUserColor : '#aa1111',
-      });
+      }
+
+      setCurrentUser(updatedUser)
+      providerRef.current.awareness.setLocalStateField('user', updatedUser);
     }
   };
 
   const handleAwarenessChange = (awareness: Awareness) => {
     const updatedUsers: User[] = [];
 
-    for (let [id, state] of awareness.getStates().entries()) {
+    for (let state of awareness.getStates().values()) {
       if (state.user) {
-        updatedUsers.push({ id, ...state.user });
+        updatedUsers.push({ ...state.user });
       }
     }
 
@@ -85,13 +91,13 @@ function App() {
 
   return (
     <div className='container mt-6'>
-      <div className='flex mb-5 gap-4 items-center'>
+      <div className='flex mb-7 gap-4 items-center'>
         <span className='text-green-500'>Online:</span>
         <ul className='flex gap-4'>
           {onlineUsers.map((user, index) => (
             <li
               key={index}
-              className='text-xs p-1 px-2 text-white rounded'
+              className={`text-xs p-1 px-2 text-white rounded ${ user.id === currentUser?.id ? 'border border-black outline outline-2 outline-cyan-600' : '' }`}
               style={{
                 backgroundColor: user.color,
               }}
@@ -102,7 +108,7 @@ function App() {
         </ul>
       </div>
 
-      <div className='mb-5 flex'>
+      <div className='mb-6 flex'>
         <input
           type='text'
           placeholder='Username'
